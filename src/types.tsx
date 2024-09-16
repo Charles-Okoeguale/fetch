@@ -33,7 +33,6 @@ export interface SearchFilters {
   zipCode: string;
 }
 
-// src/types.ts
 export interface User {
   id: string;
   name: string;
