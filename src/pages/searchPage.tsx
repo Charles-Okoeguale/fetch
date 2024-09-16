@@ -28,7 +28,14 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
   useEffect(() => {
     fetchBreeds();
     searchDogs();
+    const storedFavorites = getFavoriteIds();
+    setFavorites(storedFavorites);
   }, []);
+
+  const getFavoriteIds = (): string[] => {
+    const storedFavorites = localStorage.getItem('favorites');
+    return storedFavorites ? JSON.parse(storedFavorites) : [];
+  };
 
   const fetchBreeds = async () => {
     try {
@@ -112,16 +119,12 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
     setPage(value);
   };
 
-  const toggleFavorite = (dogId: string) => {
-    console.log(dogId);
-  
-    // Update favorites in state
+  const toggleFavorite = (dogId: string) => {  
     setFavorites(prev => {
       const updatedFavorites = prev.includes(dogId)
         ? prev.filter(id => id !== dogId) 
-        : [...prev, dogId];  // Add to favorites
+        : [...prev, dogId];
       localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-  
       return updatedFavorites;
     });
   };
@@ -165,6 +168,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
 
   useEffect(() => {
     searchDogs();
+    
   }, [filters, sortOrder, page]);
 
   return (
