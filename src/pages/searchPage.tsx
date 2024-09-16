@@ -143,8 +143,21 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
 
       if (response.ok) {
         const matchData = await response.json();
-        console.log(matchData, 'matchData')
-        setMatch(matchData);
+        const matchId = matchData.match;
+        const dogsResponse = await fetch('https://frontend-take-home-service.fetch.com/dogs', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify([matchId]),
+            credentials: 'include',
+          });
+          if (dogsResponse.ok) {
+          const dogsData = await dogsResponse.json()
+          setMatch(dogsData[0]);
+        } else {
+          throw new Error('Failed to fetch dog details');
+        }
         onSaveMatch({ id: Date.now().toString(), dog: matchData, timestamp: Date.now() });
       } else {
         throw new Error('Failed to generate match');
@@ -270,6 +283,12 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
           <Box sx={{ mt: 2 }}>
             <Typography variant="h5">Your Match:</Typography>
             <Card>
+                <CardMedia
+                    component="img"
+                    height="140"
+                    image={match.img}
+                    alt={match.name} 
+                />
               <CardContent>
                 <Typography variant="h6">{match.name}</Typography>
                 <Typography>Breed: {match.breed}</Typography>
