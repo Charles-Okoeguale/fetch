@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Container, TextField, Button, Typography, Grid, Card, CardContent, CardActions, Pagination, Select, MenuItem, FormControl, InputLabel, CircularProgress, Snackbar, Alert } from '@mui/material';
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import { Box, Container, TextField, Button, Typography, Grid, Card, CardContent, CardActions, Pagination, Select, MenuItem, FormControl, InputLabel, CircularProgress, Snackbar, Alert, SelectChangeEvent, CardMedia } from '@mui/material';
 import { User, Dog, SearchFilters, SavedSearch, Match } from '../types';
 
 interface SearchPageProps {
@@ -51,16 +51,16 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
 
   const searchDogs = async () => {
     try {
-      setLoading(true);
-      const queryParams = new URLSearchParams({
-        breed: filters.breed,
-        ageMin: filters.ageMin.toString(),
-        ageMax: filters.ageMax.toString(),
-        zipCodes: filters.zipCode,
-        sort: `breed:${sortOrder}`,
-        size: '20',
-        from: ((page - 1) * 20).toString(),
-      });
+        setLoading(true);
+
+        const queryParams = new URLSearchParams();
+        if (filters.breed) queryParams.append('breed', filters.breed);
+        if (filters.ageMin) queryParams.append('ageMin', filters.ageMin.toString());
+        if (filters.ageMax) queryParams.append('ageMax', filters.ageMax.toString());
+        if (filters.zipCode) queryParams.append('zipCodes', filters.zipCode);
+        queryParams.append('sort', `breed:${sortOrder}`);
+        queryParams.append('size', '20');
+        queryParams.append('from', ((page - 1) * 20).toString());
 
       const response = await fetch(`https://frontend-take-home-service.fetch.com/dogs/search?${queryParams}`, {
         credentials: 'include',
@@ -79,7 +79,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
         });
 
         if (dogsResponse.ok) {
-          const dogsData = await dogsResponse.json();
+          const dogsData = await dogsResponse.json()
           setDogs(dogsData);
           setTotalPages(Math.ceil(data.total / 20));
         } else {
@@ -95,8 +95,11 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
     }
   };
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilterChange = (event: SelectChangeEvent<string> | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
+    if (name === 'ageMin' && Number(value) < 0) {
+        return;
+    }
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
@@ -110,9 +113,17 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
   };
 
   const toggleFavorite = (dogId: string) => {
-    setFavorites(prev =>
-      prev.includes(dogId) ? prev.filter(id => id !== dogId) : [...prev, dogId]
-    );
+    console.log(dogId);
+  
+    // Update favorites in state
+    setFavorites(prev => {
+      const updatedFavorites = prev.includes(dogId)
+        ? prev.filter(id => id !== dogId) 
+        : [...prev, dogId];  // Add to favorites
+      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+  
+      return updatedFavorites;
+    });
   };
 
   const generateMatch = async () => {
@@ -129,6 +140,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
 
       if (response.ok) {
         const matchData = await response.json();
+        console.log(matchData, 'matchData')
         setMatch(matchData);
         onSaveMatch({ id: Date.now().toString(), dog: matchData, timestamp: Date.now() });
       } else {
@@ -167,7 +179,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
             <Select
               labelId="breed-select-label"
               value={filters.breed}
-            //   onChange={(e) => handleFilterChange(e.target.value, 'breed')}
+              onChange={(e) => handleFilterChange(e)}
               name="breed"
               label="Breed"
             >
@@ -182,7 +194,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
             type="number"
             name="ageMin"
             value={filters.ageMin}
-            // onChange={handleFilterChange}
+            onChange={handleFilterChange}
             sx={{ mr: 2 }}
           />
           <TextField
@@ -216,6 +228,12 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
             {dogs.map((dog) => (
               <Grid item xs={12} sm={6} md={4} key={dog.id}>
                 <Card>
+                <CardMedia
+                    component="img"
+                    height="140"
+                    image={dog.img}
+                    alt={dog.name} 
+                />
                   <CardContent>
                     <Typography variant="h6">{dog.name}</Typography>
                     <Typography>Breed: {dog.breed}</Typography>

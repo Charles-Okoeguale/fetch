@@ -8,6 +8,7 @@ export interface Dog {
   name: string;
   breed: string;
   age: number;
+  img: string;
   zip_code: string;
 }
 
@@ -31,12 +32,6 @@ export interface SearchFilters {
   ageMin: number;
   ageMax: number;
   zipCode: string;
-}
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
 }
 
 export interface Dog {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Container } from '@mui/material';
+import { Box, Button, TextField, Typography, Container, CircularProgress } from '@mui/material';
 import { User } from '../types';
 
 interface LoginPageProps {
@@ -9,10 +9,12 @@ interface LoginPageProps {
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setLoading(true)
       const response = await fetch('https://frontend-take-home-service.fetch.com/auth/login', {
         method: 'POST',
         headers: {
@@ -23,9 +25,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       });
 
       if (response.ok) {
+        setLoading(false)
         onLogin({
-            name, email,
-            id: ''
+            name, email
         });
       } else {
         throw new Error('Login failed');
@@ -79,7 +81,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            {loading ?  <CircularProgress sx={{color: 'white'}}/> : 'Sign In'}
           </Button>
         </Box>
       </Box>

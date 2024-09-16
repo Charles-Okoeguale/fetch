@@ -52,6 +52,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
   const loadFavorites = async () => {
     try {
       const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
+      console.log('favoriteIds', favoriteIds)
       if (favoriteIds.length > 0) {
         const response = await fetch('https://frontend-take-home-service.fetch.com/dogs', {
           method: 'POST',
