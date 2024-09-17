@@ -1,15 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-} from '@mui/material';
-import { User, SavedSearch, Dog, UserProfileProps } from '../types';
+import React, { useEffect, useState } from 'react';
+import { Container, Box, Typography } from '@mui/material';
 import ProfileCard from '../components/profileCard';
 import SavedSearchList from '../components/savedSearchList';
 import FavoriteDogsList from '../components/faavoriteDogList';
 import SavedSearchDialog from '../components/savedSearchDialog';
-
+import { Dog, SavedSearch, UserProfileProps } from '../types';
 
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }) => {
@@ -17,6 +12,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
   const [favorites, setFavorites] = useState<Dog[]>([]);
   const [isViewingSavedSearch, setIsViewingSavedSearch] = useState(false);
   const [selectedSavedSearch, setSelectedSavedSearch] = useState<SavedSearch | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     loadSavedSearches();
@@ -54,7 +51,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
     }
   };
 
-
   const handleDeleteSavedSearch = (id: string) => {
     const updatedSearches = savedSearches.filter(search => search.id !== id);
     setSavedSearches(updatedSearches);
@@ -72,33 +68,52 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
     setIsViewingSavedSearch(true);
   };
 
+  const loadMore = () => {
+    if (isLoading) return;
+  
+    setIsLoading(true);
+    fetch(`/api/favorites?page=${page}&limit=10`)
+      .then((response) => response.json())
+      .then((newDogs) => {
+        setFavorites((prev) => [...prev, ...newDogs]);
+        setPage((prevPage) => prevPage + 1);
+        setIsLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    loadMore();
+  }, []);
+
   return (
     <Container>
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom sx={{mb: 4, fontFamily: 'Kanit'}}>
+        <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4, fontFamily: 'Kanit' }}>
           User Profile
         </Typography>
         <ProfileCard
-        user={user}
-        onUpdateProfile={onUpdateUser}
-      />
+          user={user}
+          onUpdateProfile={onUpdateUser}
+        />
 
-        <Typography variant="h5" gutterBottom style={{fontFamily: 'Kanit', fontWeight: 700}}>
+        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Kanit', fontWeight: 700 }}>
           Saved Searches
         </Typography>
         <SavedSearchList
-      savedSearches={savedSearches.map(search => ({...search, name: search.name || 'Default'}))}
-      handleViewSavedSearch={(search) => handleViewSavedSearch(search as SavedSearch)}
-      handleDeleteSavedSearch={handleDeleteSavedSearch}
-    />
+          savedSearches={savedSearches.map(search => ({ ...search, name: search.name || 'Default' }))}
+          handleViewSavedSearch={(search) => handleViewSavedSearch(search as SavedSearch)}
+          handleDeleteSavedSearch={handleDeleteSavedSearch}
+        />
 
         <Typography variant="h5" gutterBottom sx={{ mt: 8, fontFamily: 'Kanit', fontWeight: 800 }}>
           Favorite Dogs
         </Typography>
         <FavoriteDogsList
-      favorites={favorites}
-      handleDeleteFavorite={handleDeleteFavorite}
-    />
+        currentFavorites={favorites}
+        handleDeleteFavorite={handleDeleteFavorite}
+        isLoading={isLoading}
+        loadMore={loadMore}
+      />
       </Box>
 
       <SavedSearchDialog
