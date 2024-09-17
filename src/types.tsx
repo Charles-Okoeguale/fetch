@@ -58,8 +58,8 @@ export interface LoginPageProps {
 
 export interface HeaderProps {
   user: User;
-  currentPage: 'search' | 'profile';
-  onNavigate: (page: 'search' | 'profile') => void;
+  currentPage: 'search' | 'profile' | 'saved'; // Include 'saved' here
+  onNavigate: (page: 'search' | 'profile' | 'saved') => void; // Update onNavigate as well
   onLogout: () => void;
 }
 

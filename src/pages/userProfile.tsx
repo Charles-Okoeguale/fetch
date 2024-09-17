@@ -4,50 +4,32 @@ import ProfileCard from '../components/profileCard';
 import SavedSearchList from '../components/savedSearchList';
 import FavoriteDogsList from '../components/faavoriteDogList';
 import SavedSearchDialog from '../components/savedSearchDialog';
-import { Dog, SavedSearch, UserProfileProps } from '../types';
-
+import { SavedSearch, UserProfileProps } from '../types';
+import { useFavorites } from '../hooks/useFavorites';
+import { useQueryClient } from '@tanstack/react-query';
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }) => {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
-  const [favorites, setFavorites] = useState<Dog[]>([]);
   const [isViewingSavedSearch, setIsViewingSavedSearch] = useState(false);
   const [selectedSavedSearch, setSelectedSavedSearch] = useState<SavedSearch | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const queryClient = useQueryClient();
+
+  const { data: favorites = [], isLoading, error } = useFavorites();
 
   useEffect(() => {
     loadSavedSearches();
-    loadFavorites();
   }, []);
+
+  useEffect(() => {
+    if (error) {
+      onError('Error loading favorites: ' + (error instanceof Error ? error.message : String(error)));
+    }
+  }, [error, onError]);
 
   const loadSavedSearches = () => {
     const saved = localStorage.getItem('savedSearches');
     if (saved) {
       setSavedSearches(JSON.parse(saved));
-    }
-  };
-
-  const loadFavorites = async () => {
-    try {
-      const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
-      if (favoriteIds.length > 0) {
-        const response = await fetch('https://frontend-take-home-service.fetch.com/dogs', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(favoriteIds),
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const favoriteDogs = await response.json();
-          setFavorites(favoriteDogs);
-        } else {
-          throw new Error('Failed to fetch favorite dogs');
-        }
-      }
-    } catch (error) {
-      onError('Error loading favorites: ' + (error instanceof Error ? error.message : String(error)));
     }
   };
 
@@ -58,31 +40,15 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
   };
 
   const handleDeleteFavorite = (id: string) => {
-    const updatedFavorites = favorites.filter(dog => dog.id !== id);
-    setFavorites(updatedFavorites);
-    localStorage.setItem('favorites', JSON.stringify(updatedFavorites.map(dog => dog.id)));
+    const updatedFavorites = favorites.filter((dog: { id: string; }) => dog.id !== id);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites.map((dog: { id: string; }) => dog.id)));
+    queryClient.invalidateQueries({ queryKey: ['favorites'] });
   };
 
   const handleViewSavedSearch = (search: SavedSearch) => {
     setSelectedSavedSearch(search);
     setIsViewingSavedSearch(true);
   };
-
-  const loadMore = () => {
-    setIsLoading(true);
-
-    fetch(`/api/favorites?page=${page}&limit=10`)
-      .then((response) => response.json())
-      .then((newDogs) => {
-        setFavorites((prev) => [...prev, ...newDogs]);
-        setPage((prevPage) => prevPage + 1);
-        setIsLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    loadMore();
-  }, []);
 
   return (
     <Container>
@@ -107,10 +73,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
         <Typography variant="h5" gutterBottom sx={{ mt: 8, fontFamily: 'Kanit', fontWeight: 800 }}>
           Favorite Dogs
         </Typography>
-        <FavoriteDogsList
-          favorites={favorites}
-          handleDeleteFavorite={handleDeleteFavorite}
-        />
+        {isLoading ? (
+          <Typography>Loading favorites...</Typography>
+        ) : (
+          <FavoriteDogsList
+            favorites={favorites}
+            handleDeleteFavorite={handleDeleteFavorite}
+          />
+        )}
       </Box>
 
       <SavedSearchDialog

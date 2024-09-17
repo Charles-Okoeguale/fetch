@@ -28,7 +28,6 @@ const App: React.FC = () => {
   const queryClient = new QueryClient();
 
   useEffect(() => {
-    // Load saved searches and matches from local storage
     const loadedSearches = localStorage.getItem('savedSearches');
     const loadedMatches = localStorage.getItem('savedMatches');
     if (loadedSearches) setSavedSearches(JSON.parse(loadedSearches));
@@ -52,32 +51,40 @@ const App: React.FC = () => {
     document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   };
 
+  const handleError = (message: string) => {
+    alert(`Error: ${message}`);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
-       <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container>
-        {user ? (
-          <>
-            <Header user={user} onLogout={handleLogout} onNavigate={setCurrentPage} currentPage={'search'} />
-            <Box sx={{ mt: 15}}>
-              {currentPage === 'search' && (
-                <SearchPage 
-                  user={user} 
-                  onSaveSearch={handleSaveSearch} 
-                  onSaveMatch={handleSaveMatch}
-                />
-              )}
-              {currentPage === 'profile' && <UserProfile user={user} onUpdateUser={setUser} onError={function (message: string): void {
-                throw new Error('Function not implemented.');
-              } }/>}
-            </Box>
-          </>
-        ) : (
-          <LoginPage onLogin={setUser} />
-        )}
-      </Container>
-    </ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Container>
+          {user ? (
+            <>
+              <Header user={user} onLogout={handleLogout} onNavigate={setCurrentPage} currentPage={currentPage} />
+              <Box sx={{ mt: 15 }}>
+                {currentPage === 'search' && (
+                  <SearchPage
+                    user={user}
+                    onSaveSearch={handleSaveSearch}
+                    onSaveMatch={handleSaveMatch}
+                  />
+                )}
+                {currentPage === 'profile' && (
+                  <UserProfile
+                    user={user}
+                    onUpdateUser={setUser}
+                    onError={handleError} 
+                  />
+                )}
+              </Box>
+            </>
+          ) : (
+            <LoginPage onLogin={setUser} />
+          )}
+        </Container>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
