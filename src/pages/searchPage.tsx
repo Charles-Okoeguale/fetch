@@ -59,19 +59,21 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
   const searchDogs = async () => {
     try {
         setLoading(true);
-
         const queryParams = new URLSearchParams();
-        if (filters.breed) queryParams.append('breed', filters.breed);
+
+        if (filters.breed) queryParams.append('breeds[]', filters.breed);
         if (filters.ageMin) queryParams.append('ageMin', filters.ageMin.toString());
         if (filters.ageMax) queryParams.append('ageMax', filters.ageMax.toString());
-        if (filters.zipCode) queryParams.append('zipCodes', filters.zipCode);
+        if (filters.zipCode) queryParams.append('zipCodes[]', filters.zipCode);
         queryParams.append('sort', `breed:${sortOrder}`);
         queryParams.append('size', '20');
         queryParams.append('from', ((page - 1) * 20).toString());
 
-      const response = await fetch(`https://frontend-take-home-service.fetch.com/dogs/search?${queryParams}`, {
+        const url = `https://frontend-take-home-service.fetch.com/dogs/search?${queryParams}`;
+
+        const response = await fetch(url, {
         credentials: 'include',
-      });
+        });
 
       if (response.ok) {
         const data = await response.json();
@@ -87,6 +89,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
 
         if (dogsResponse.ok) {
           const dogsData = await dogsResponse.json()
+          console.log(dogsData)
           setDogs(dogsData);
           setTotalPages(Math.ceil(data.total / 20));
         } else {
