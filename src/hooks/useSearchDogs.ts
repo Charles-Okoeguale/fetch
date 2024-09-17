@@ -1,6 +1,5 @@
-import { SearchData } from '../types';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-
+import { SearchData } from '../types';
 
 interface SearchDogsParams {
   filters: any;
@@ -8,7 +7,16 @@ interface SearchDogsParams {
   page: number;
 }
 
-const fetchDogs = async ({ filters, sortOrder, page }: SearchDogsParams) => {
+export const useSearchDogs = (params: SearchDogsParams): UseQueryResult<SearchData, Error> => {
+  return useQuery<SearchData, Error>({
+    queryKey: ['searchDogs', params],
+    queryFn: () => fetchDogs(params) as Promise<SearchData>,
+    staleTime: 0, 
+    refetchOnWindowFocus: false,
+  });
+};
+
+const fetchDogs = async ({ filters, sortOrder, page }: SearchDogsParams): Promise<SearchData> => {
   const queryParams = new URLSearchParams();
 
   if (filters.breed) queryParams.append('breeds[]', filters.breed);
@@ -39,13 +47,5 @@ const fetchDogs = async ({ filters, sortOrder, page }: SearchDogsParams) => {
   }
 
   const dogsData = await dogsResponse.json();
-  // return { dogsData, totalPages: Math.ceil(data.total / 12) };
   return { dogsData, totalPages: Math.ceil(data.total / 12) };
-};
-
-export const useSearchDogs = (params: SearchDogsParams): UseQueryResult<SearchData, Error> => {
-  return useQuery<SearchData, Error>({
-    queryKey: ['searchDogs', params],
-    queryFn: () => fetchDogs(params)
-  });
 };

@@ -34,6 +34,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
   const { data: searchData, isLoading: searchLoading, refetch } = useSearchDogs({ filters, sortOrder, page });
 
 
+
   useEffect(() => {
     const storedFavorites = getFavoriteIds();
     setFavorites(storedFavorites);
