@@ -1,6 +1,10 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Box, Container, TextField, Button, Typography, Grid, Card, CardContent, CardActions, Pagination, Select, MenuItem, FormControl, InputLabel, CircularProgress, Snackbar, Alert, SelectChangeEvent, CardMedia } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Container, Button, Typography, Pagination, CircularProgress, SelectChangeEvent } from '@mui/material';
 import { User, Dog, SearchFilters, SavedSearch, Match } from '../types';
+import DogCardGrid from '../components/dogCard';
+import MatchCard from '../components/matchCard';
+import SearchFilter from '../components/searchFilter';
+import ErrorSnackbar from '../components/snackbarError';
 
 interface SearchPageProps {
   user: User;
@@ -89,7 +93,6 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
 
         if (dogsResponse.ok) {
           const dogsData = await dogsResponse.json()
-          console.log(dogsData)
           setDogs(dogsData);
           setTotalPages(Math.ceil(data.total / 20));
         } else {
@@ -105,13 +108,11 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
     }
   };
 
-  const handleFilterChange = (event: SelectChangeEvent<string> | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.target;
-    if (name === 'ageMin' && Number(value) < 0) {
-        return;
-    }
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
+    const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
+        const { name, value } = event.target as HTMLInputElement & { name?: string; value: string };
+    
+        setFilters(prev => ({ ...prev, [name]: value }));
+    };
 
   const handleSortOrderChange = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -176,7 +177,6 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
     const savedSearch: SavedSearch = {
         id: Date.now().toString(),
         ...filters,
-        sortOrder,
         name: ''
     };
     onSaveSearch(savedSearch);
@@ -190,89 +190,27 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
   return (
     <Container>
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography variant="h4" component="h1" gutterBottom sx={{mb: 4}}>
           Find Your Perfect Furry Friend
         </Typography>
-        <Box sx={{ mb: 2 }}>
-          <FormControl sx={{ minWidth: 120, mr: 2 }}>
-            <InputLabel id="breed-select-label">Breed</InputLabel>
-            <Select
-              labelId="breed-select-label"
-              value={filters.breed}
-              onChange={(e) => handleFilterChange(e)}
-              name="breed"
-              label="Breed"
-            >
-              <MenuItem value="">All breeds</MenuItem>
-              {breeds.map((breed) => (
-                <MenuItem key={breed} value={breed}>{breed}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Min Age"
-            type="number"
-            name="ageMin"
-            value={filters.ageMin}
-            onChange={handleFilterChange}
-            sx={{ mr: 2 }}
-          />
-          <TextField
-            label="Max Age"
-            type="number"
-            name="ageMax"
-            value={filters.ageMax}
-            onChange={handleFilterChange}
-            sx={{ mr: 2 }}
-          />
-          <TextField
-            label="Zip Code"
-            name="zipCode"
-            value={filters.zipCode}
-            onChange={handleFilterChange}
-            sx={{ mr: 2 }}
-          />
-          <Button onClick={handleSortOrderChange} variant="outlined" sx={{ mr: 2 }}>
-            Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
-          </Button>
-          <Button onClick={handleSaveSearch} variant="contained">
-            Save Search
-          </Button>
-        </Box>
+        <SearchFilter
+            filters={filters}
+            breeds={breeds}
+            sortOrder={sortOrder}
+            handleFilterChange={handleFilterChange}
+            handleSortOrderChange={handleSortOrderChange}
+            handleSaveSearch={handleSaveSearch}
+        />
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <CircularProgress />
           </Box>
         ) : (
-          <Grid container spacing={2}>
-            {dogs.map((dog) => (
-              <Grid item xs={12} sm={6} md={4} key={dog.id}>
-                <Card>
-                <CardMedia
-                    component="img"
-                    height="140"
-                    image={dog.img}
-                    alt={dog.name} 
-                />
-                  <CardContent>
-                    <Typography variant="h6">{dog.name}</Typography>
-                    <Typography>Breed: {dog.breed}</Typography>
-                    <Typography>Age: {dog.age}</Typography>
-                    <Typography>Zip Code: {dog.zip_code}</Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      size="small"
-                      onClick={() => toggleFavorite(dog.id)}
-                      color={favorites.includes(dog.id) ? 'secondary' : 'primary'}
-                    >
-                      {favorites.includes(dog.id) ? 'Unfavorite' : 'Favorite'}
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+            <DogCardGrid
+                dogs={dogs}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+            />
         )}
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
           <Pagination count={totalPages} page={page} onChange={handlePageChange} />
@@ -282,33 +220,16 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
             Generate Match
           </Button>
         </Box>
-        {match && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h5">Your Match:</Typography>
-            <Card>
-                <CardMedia
-                    component="img"
-                    height="140"
-                    image={match.img}
-                    alt={match.name} 
-                />
-              <CardContent>
-                <Typography variant="h6">{match.name}</Typography>
-                <Typography>Breed: {match.breed}</Typography>
-                <Typography>Age: {match.age}</Typography>
-                <Typography>Zip Code: {match.zip_code}</Typography>
-              </CardContent>
-            </Card>
-          </Box>
-        )}
+        {match && <MatchCard match={match} />}
       </Box>
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
-          {error}
-        </Alert>
-      </Snackbar>
+      <ErrorSnackbar
+        error={error}
+        onClose={() => setError(null)}
+      />
     </Container>
   );
 };
 
 export default SearchPage;
+
+

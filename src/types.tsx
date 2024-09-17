@@ -12,7 +12,7 @@ export interface Dog {
   zip_code: string;
 }
 
-export interface SavedSearch {
+export interface Savedsearch {
   id: string;
   breed: string;
   ageMin: number;
