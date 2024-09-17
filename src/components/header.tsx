@@ -1,51 +1,42 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
-import { User } from '../types';
-
-interface HeaderProps {
-  user: User;
-  currentPage: 'search' | 'profile';
-  onNavigate: (page: 'search' | 'profile') => void;
-  onLogout: () => void;
-}
+import { AppBar, Toolbar, Typography, Button, Box, ButtonBase, Avatar } from '@mui/material';
+import { HeaderProps } from '../types';
 
 const Header: React.FC<HeaderProps> = ({ user, currentPage, onNavigate, onLogout }) => {
   return (
-    <AppBar position="static">
+    <AppBar sx={{background: '#F7F7F7', boxShadow: 'none'}}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1,  fontFamily: 'Kanit', fontWeight: 900 }}>
           Dog Shelter Search
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8em' }}>
           <Button 
             color="inherit" 
             onClick={() => onNavigate('search')}
             sx={{ 
+              textTransform: 'none',
+              fontFamily: 'Kanit', 
+              fontWeight: 500,
+              fontSize: '1.2em',
               backgroundColor: currentPage === 'search' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
               '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.2)' }
             }}
           >
-            Search
+            Home
           </Button>
-          <Button 
-            color="inherit" 
-            onClick={() => onNavigate('profile')}
-            sx={{ 
-              backgroundColor: currentPage === 'profile' ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.2)' }
-            }}
-          >
-            Profile
-          </Button>
-          <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-            <Avatar sx={{ width: 32, height: 32, mr: 1 }}>
-              {user.name.charAt(0).toUpperCase()}
-            </Avatar>
-            <Typography variant="body2" sx={{ mr: 2 }}>
-              {user.name}
+         
+          <Box display={'flex'} flexDirection={'row'} alignItems={'center'}>
+           
+            <ButtonBase onClick={() => onNavigate('profile')}>
+            <Typography variant="body2" sx={{ mr: 2, fontFamily: 'Kanit', fontWeight: 500, fontSize: '1.5em' }}>
+                Profile
             </Typography>
+              <Avatar sx={{ width: 32, height: 32, mr: 1 }}>
+                {user.name.charAt(0).toUpperCase()}
+              </Avatar>
+            </ButtonBase>
           </Box>
-          <Button color="inherit" onClick={onLogout}>Logout</Button>
+          <Button variant='contained' onClick={onLogout} sx={{textTransform: 'none', fontFamily: 'Kanit', fontWeight: 700, background: 'red', color: 'white'}}>Logout</Button>
         </Box>
       </Toolbar>
     </AppBar>

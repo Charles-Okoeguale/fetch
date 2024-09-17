@@ -48,7 +48,6 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     setUser(null);
-    // Clear session cookie
     document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   };
 
@@ -59,7 +58,7 @@ const App: React.FC = () => {
         {user ? (
           <>
             <Header user={user} onLogout={handleLogout} onNavigate={setCurrentPage} currentPage={'search'} />
-            <Box mt={3}>
+            <Box sx={{ mt: 15}}>
               {currentPage === 'search' && (
                 <SearchPage 
                   user={user} 
@@ -70,12 +69,6 @@ const App: React.FC = () => {
               {currentPage === 'profile' && <UserProfile user={user} onUpdateUser={setUser} onError={function (message: string): void {
                 throw new Error('Function not implemented.');
               } }/>}
-              {/* {currentPage === 'saved' && (
-                <SavedSearches 
-                  savedSearches={savedSearches} 
-                  savedMatches={savedMatches}
-                />
-              )} */}
             </Box>
           </>
         ) : (

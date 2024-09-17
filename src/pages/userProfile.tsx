@@ -4,17 +4,13 @@ import {
   Container, 
   Typography, 
 } from '@mui/material';
-import { User, SavedSearch, Dog } from '../types';
+import { User, SavedSearch, Dog, UserProfileProps } from '../types';
 import ProfileCard from '../components/profileCard';
 import SavedSearchList from '../components/savedSearchList';
 import FavoriteDogsList from '../components/faavoriteDogList';
 import SavedSearchDialog from '../components/savedSearchDialog';
 
-interface UserProfileProps {
-  user: User;
-  onUpdateUser: (updatedUser: User) => void;
-  onError: (message: string) => void;
-}
+
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }) => {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
@@ -79,7 +75,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
   return (
     <Container>
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography variant="h4" component="h1" gutterBottom sx={{mb: 4, fontFamily: 'Kanit'}}>
           User Profile
         </Typography>
         <ProfileCard
@@ -87,7 +83,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
         onUpdateProfile={onUpdateUser}
       />
 
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom style={{fontFamily: 'Kanit', fontWeight: 700}}>
           Saved Searches
         </Typography>
         <SavedSearchList
@@ -96,7 +92,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
       handleDeleteSavedSearch={handleDeleteSavedSearch}
     />
 
-        <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+        <Typography variant="h5" gutterBottom sx={{ mt: 8, fontFamily: 'Kanit', fontWeight: 800 }}>
           Favorite Dogs
         </Typography>
         <FavoriteDogsList

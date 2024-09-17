@@ -50,3 +50,21 @@ export interface SavedSearch {
   ageMax: number;
   zipCode: string;
 }
+
+export interface LoginPageProps {
+  onLogin: (user: User) => void;
+}
+
+
+export interface HeaderProps {
+  user: User;
+  currentPage: 'search' | 'profile';
+  onNavigate: (page: 'search' | 'profile') => void;
+  onLogout: () => void;
+}
+
+export interface UserProfileProps {
+  user: User;
+  onUpdateUser: (updatedUser: User) => void;
+  onError: (message: string) => void;
+}

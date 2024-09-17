@@ -20,14 +20,14 @@ interface ProfileCardProps {
     };
   
     return (
-      <Card sx={{ mb: 4 }}>
+      <Card sx={{ mb: 4, boxShadow: 'none', height: '13em' }}>
         <CardContent>
           {isEditingProfile ? (
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Name"
+                  placeholder='Enter your new name'
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -35,7 +35,7 @@ interface ProfileCardProps {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Email"
+                  placeholder='Enter your new email'
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -43,20 +43,20 @@ interface ProfileCardProps {
             </Grid>
           ) : (
             <>
-              <Typography variant="h6">Name: {user.name}</Typography>
-              <Typography variant="body1">Email: {user.email}</Typography>
+              <Typography variant="h6" style={{fontFamily: 'Kanit'}}>Name: {user.name}</Typography>
+              <Typography variant="body1" style={{fontFamily: 'Kanit'}}>Email: {user.email}</Typography>
             </>
           )}
         </CardContent>
         <CardActions>
           {isEditingProfile ? (
-            <Button onClick={handleUpdateProfile} variant="contained" color="primary">
+            <Button onClick={handleUpdateProfile} variant="contained" color="primary" sx={{textTransform: 'none', fontFamily: 'Kanit'}}>
               Save Changes
             </Button>
           ) : (
-            <Button onClick={() => setIsEditingProfile(true)} variant="outlined">
+             <Button onClick={() => setIsEditingProfile(true)} variant="outlined" sx={{textTransform: 'none', fontFamily: 'Kanit', fontWeight: 700}}>
               Edit Profile
-            </Button>
+            </Button>      
           )}
         </CardActions>
       </Card>

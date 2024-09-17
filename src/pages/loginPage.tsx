@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Container, CircularProgress } from '@mui/material';
-import { User } from '../types';
-
-interface LoginPageProps {
-  onLogin: (user: User) => void;
-}
+import { LoginPageProps } from '../types';
+import { useStyles } from './styles/loginPageStyles';
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false)
+  const classes = useStyles()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,52 +38,46 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Typography component="h1" variant="h5">
-          Find Your Perfect Furry Friend
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="name"
-            label="Name"
-            name="name"
-            autoComplete="name"
-            autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            {loading ?  <CircularProgress sx={{color: 'white'}}/> : 'Sign In'}
-          </Button>
-        </Box>
+    <Box className={classes.container}>
+      <Typography component="h1" variant="h5">
+        Find Your Perfect Furry Friend
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit} className={classes.form}>
+        <TextField
+          margin="dense"
+          required
+          fullWidth
+          id="name"
+          placeholder='Enter your name'
+          name="name"
+          autoComplete="name"
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={classes.textField}
+        />
+        <TextField
+          margin="dense"
+          required
+          fullWidth
+          id="email"
+          placeholder='Enter your email address'
+          name="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={classes.textField}
+        />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+        >
+          {loading ? <CircularProgress className={classes.progress} /> : 'Sign In'}
+        </Button>
       </Box>
-    </Container>
+    </Box>
+  </Container>
   );
 };
 

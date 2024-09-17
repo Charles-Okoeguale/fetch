@@ -65,10 +65,10 @@ const SearchFilter: React.FC<SearchFiltersProps> = ({
         onChange={handleFilterChange}
         sx={{ mr: 2 }}
       />
-      <Button onClick={handleSortOrderChange} variant="outlined" sx={{ mr: 2 }}>
+      <Button onClick={handleSortOrderChange} variant="outlined" sx={{ mr: 2, fontFamily: 'Kanit', fontWeight: 900  }}>
         Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
       </Button>
-      <Button onClick={handleSaveSearch} variant="contained" sx={{textTransform: 'none'}}>
+      <Button onClick={handleSaveSearch} variant="contained" sx={{textTransform: 'none', fontFamily: 'Kanit', fontWeght: 900, color: 'white' }}>
         Save Search
       </Button>
     </Box>

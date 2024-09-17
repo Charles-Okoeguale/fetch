@@ -29,6 +29,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     fetchBreeds();
     searchDogs();
@@ -70,8 +71,8 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
         if (filters.ageMax) queryParams.append('ageMax', filters.ageMax.toString());
         if (filters.zipCode) queryParams.append('zipCodes[]', filters.zipCode);
         queryParams.append('sort', `breed:${sortOrder}`);
-        queryParams.append('size', '20');
-        queryParams.append('from', ((page - 1) * 20).toString());
+        queryParams.append('size', '12');
+        queryParams.append('from', ((page - 1) * 12).toString());
 
         const url = `https://frontend-take-home-service.fetch.com/dogs/search?${queryParams}`;
 
@@ -190,33 +191,38 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
   return (
     <Container>
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom sx={{mb: 4}}>
+        <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4, fontFamily: 'Kanit' }}>
           Find Your Perfect Furry Friend
         </Typography>
         <SearchFilter
-            filters={filters}
-            breeds={breeds}
-            sortOrder={sortOrder}
-            handleFilterChange={handleFilterChange}
-            handleSortOrderChange={handleSortOrderChange}
-            handleSaveSearch={handleSaveSearch}
+          filters={filters}
+          breeds={breeds}
+          sortOrder={sortOrder}
+          handleFilterChange={handleFilterChange}
+          handleSortOrderChange={handleSortOrderChange}
+          handleSaveSearch={handleSaveSearch}
         />
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <CircularProgress />
           </Box>
         ) : (
-            <DogCardGrid
-                dogs={dogs}
-                favorites={favorites}
-                toggleFavorite={toggleFavorite}
-            />
+          <DogCardGrid
+            dogs={dogs}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+          />
         )}
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
           <Pagination count={totalPages} page={page} onChange={handlePageChange} />
         </Box>
         <Box sx={{ mt: 2 }}>
-          <Button onClick={generateMatch} variant="contained" disabled={favorites.length === 0 || loading}>
+          <Button
+            onClick={generateMatch}
+            sx={{ textTransform: 'none', fontFamily: 'Kanit' }}
+            variant="contained"
+            disabled={favorites.length === 0 || loading}
+          >
             Generate Match
           </Button>
         </Box>
