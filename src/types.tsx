@@ -77,6 +77,19 @@ export interface FavoriteDogsListProps {
 }
 
 export interface SearchData {
-  dogsData: any[]; // Consider defining a more specific type for dogs
+  dogsData: any[]; 
   totalPages: number;
 }
+
+export interface Match {
+  name: string;
+  breed: string;
+  age: number;
+  zip_code: string;
+  img: string;
+}
+
+export interface MatchCardProps {
+  match: Match;
+}
+

@@ -33,9 +33,4 @@ export const useStyles = makeStyles({
       },
     },
     },
-    
-    progress: {
-      color: 'white',
-      fontSize: '0.4em',
-    },
   });

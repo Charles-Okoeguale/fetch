@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, FormControl, InputLabel, Select, MenuItem, TextField, Button, SelectChangeEvent } from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem, TextField, Button, SelectChangeEvent, useMediaQuery, Grid } from '@mui/material';
 
 interface Filters {
   breed: string;
@@ -25,52 +25,72 @@ const SearchFilter: React.FC<SearchFiltersProps> = ({
   handleSortOrderChange,
   handleSaveSearch
 }) => {
+  const isMobile = useMediaQuery('(max-width:600px)');
   return (
     <Box sx={{ mb: 5 }}>
-      <FormControl sx={{ minWidth: 120, mr: 2 }}>
-        <InputLabel id="breed-select-label">Breed</InputLabel>
-        <Select
-          labelId="breed-select-label"
-          value={filters.breed}
-          onChange={(event: SelectChangeEvent<string>) => handleFilterChange(event)}
-          name="breed"
-          label="Breed"
-        >
-          <MenuItem value="">All breeds</MenuItem>
-          {breeds.map((breed) => (
-            <MenuItem key={breed} value={breed}>{breed}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <TextField
-        label="Min Age"
-        type="number"
-        name="ageMin"
-        value={filters.ageMin}
-        onChange={handleFilterChange}
-        sx={{ mr: 2 }}
-      />
-      <TextField
-        label="Max Age"
-        type="number"
-        name="ageMax"
-        value={filters.ageMax}
-        onChange={handleFilterChange}
-        sx={{ mr: 2 }}
-      />
-      <TextField
-        label="Zip Code"
-        name="zipCode"
-        value={filters.zipCode}
-        onChange={handleFilterChange}
-        sx={{ mr: 2 }}
-      />
-      <Button onClick={handleSortOrderChange} variant="outlined" sx={{ mr: 2, fontFamily: 'Kanit', fontWeight: 900  }}>
-        Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
-      </Button>
-      <Button onClick={handleSaveSearch} variant="contained" sx={{textTransform: 'none', fontFamily: 'Kanit', fontWeght: 900, color: 'white' }}>
-        Save Search
-      </Button>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <InputLabel id="breed-select-label">Breed</InputLabel>
+            <Select
+              labelId="breed-select-label"
+              value={filters.breed}
+              onChange={(event: SelectChangeEvent<string>) => handleFilterChange(event)}
+              name="breed"
+              label="Breed"
+            >
+              <MenuItem value="">All breeds</MenuItem>
+              {breeds.map((breed) => (
+                <MenuItem key={breed} value={breed}>{breed}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={6} sm={3} md={2}>
+          <TextField
+            label="Min Age"
+            type="number"
+            name="ageMin"
+            value={filters.ageMin}
+            onChange={handleFilterChange}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={6} sm={3} md={2}>
+          <TextField
+            label="Max Age"
+            type="number"
+            name="ageMax"
+            value={filters.ageMax}
+            onChange={handleFilterChange}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <TextField
+            label="Zip Code"
+            name="zipCode"
+            value={filters.zipCode}
+            onChange={handleFilterChange}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={6} sm={3} md={2}>
+          <Button onClick={handleSortOrderChange} variant="outlined" fullWidth sx={{ fontFamily: 'Kanit', fontWeight: 900 }}>
+            Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
+          </Button>
+        </Grid>
+
+        <Grid item xs={6} sm={3} md={2}>
+          <Button onClick={handleSaveSearch} variant="contained" fullWidth sx={{ textTransform: 'none', fontFamily: 'Kanit', fontWeight: 900, color: 'white' }}>
+            Save Search
+          </Button>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

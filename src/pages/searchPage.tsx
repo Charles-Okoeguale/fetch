@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Button, Typography, Pagination, CircularProgress, SelectChangeEvent } from '@mui/material';
+import { Box, Container, Button, Typography, Pagination, CircularProgress, SelectChangeEvent, Dialog, DialogContent, DialogTitle,  } from '@mui/material';
 import { User, Dog, SearchFilters, SavedSearch, Match } from '../types';
 import DogCardGrid from '../components/dogCard';
 import MatchCard from '../components/matchCard';
@@ -7,8 +7,7 @@ import SearchFilter from '../components/searchFilter';
 import ErrorSnackbar from '../components/snackbarError';
 import { useSearchDogs } from '../hooks/useSearchDogs';
 import useFetchBreeds from '../hooks/useFetchBreeds';
-import { useMutation, UseMutationResult } from 'react-query';
-import { generateMatch } from '../hooks/useGeneralMatch';
+import { useGenerateMatch } from '../hooks/useGeneralMatch';
 
 
 interface SearchPageProps {
@@ -29,15 +28,11 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
   const [favorites, setFavorites] = useState<string[]>([]);
   const [match, setMatch] = useState<Dog | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: breeds = [], isLoading: breedsLoading, error: breedsError } = useFetchBreeds();
   const { data: searchData, isLoading: searchLoading, refetch } = useSearchDogs({ filters, sortOrder, page });
-  const useGenerateMatch = (onSuccess: (match: any) => void): UseMutationResult<any, Error, string[]> => {
-    return useMutation({
-      mutationFn: generateMatch,
-      onSuccess,
-    });
-  };
+
 
   useEffect(() => {
     const storedFavorites = getFavoriteIds();
@@ -83,6 +78,22 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
     onSaveSearch(savedSearch);
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const { mutate: generateMatch } = useGenerateMatch(
+    (dogMatch) => {
+      setMatch(dogMatch)
+    },
+    setMatch 
+  );
+
+  const handleGenerateMatch = async () => {
+    await generateMatch(favorites);
+    setIsModalOpen(true)
+  };
+
   return (
     <Container>
       <Box sx={{ my: 4 }}>
@@ -113,7 +124,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
         </Box>
         <Box sx={{ mt: 2 }}>
           <Button
-            onClick={() => generateMatch(favorites)}
+            onClick={handleGenerateMatch}
             sx={{ textTransform: 'none', fontFamily: 'Kanit' }}
             variant="contained"
             disabled={favorites.length === 0}
@@ -121,7 +132,17 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
             Generate Match
           </Button>
         </Box>
-        {match && <MatchCard match={match} />}
+        <Dialog open={isModalOpen} onClose={handleCloseModal} maxWidth="md" fullWidth>
+        <DialogContent>
+          {match ? (
+            <>
+              <MatchCard match={match} />
+            </>
+          ) : (
+            <Typography>No match data available</Typography>
+          )}
+        </DialogContent>
+      </Dialog>
       </Box>
       <ErrorSnackbar
         error={error}

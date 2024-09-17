@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Container, CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Typography, Container, CircularProgress, colors } from '@mui/material';
 import { LoginPageProps } from '../types';
 import { useStyles } from './styles/loginPageStyles';
 
@@ -73,7 +73,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           fullWidth
           variant="contained"
         >
-          {loading ? <CircularProgress className={classes.progress} /> : 'Sign In'}
+          {loading ? <CircularProgress sx={{color: 'white'}} /> : 'Sign In'}
         </Button>
       </Box>
     </Box>

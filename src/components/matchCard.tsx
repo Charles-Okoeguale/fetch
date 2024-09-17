@@ -16,11 +16,10 @@ interface MatchCardProps {
 const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
   return (
     <Box sx={{ mt: 2 }}>
-      <Typography variant="h5">Your Match:</Typography>
       <Card>
         <CardMedia
           component="img"
-          height="140"
+          height="500"
           image={match.img}
           alt={match.name}
         />
