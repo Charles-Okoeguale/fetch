@@ -109,11 +109,11 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
     }
   };
 
-    const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
-        const { name, value } = event.target as HTMLInputElement & { name?: string; value: string };
-    
-        setFilters(prev => ({ ...prev, [name]: value }));
-    };
+  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
+      const { name, value } = event.target as HTMLInputElement & { name?: string; value: string };
+  
+      setFilters(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSortOrderChange = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');

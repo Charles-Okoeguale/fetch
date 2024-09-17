@@ -70,7 +70,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
 
   const loadMore = () => {
     setIsLoading(true);
-    // Simulate API call
+
     fetch(`/api/favorites?page=${page}&limit=10`)
       .then((response) => response.json())
       .then((newDogs) => {

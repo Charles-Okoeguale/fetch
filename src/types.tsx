@@ -68,3 +68,10 @@ export interface UserProfileProps {
   onUpdateUser: (updatedUser: User) => void;
   onError: (message: string) => void;
 }
+
+
+export interface FavoriteDogsListProps {
+  favorites: { id: string; name: string; breed: string; age: number; zip_code: string; img: string }[];
+  handleDeleteFavorite: (id: string) => void;
+  isLoading: boolean;
+}
