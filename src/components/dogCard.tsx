@@ -10,10 +10,35 @@ interface Dog {
   img: string;
 }
 
+
+interface SearchData {
+  dogsData: Dog[];
+}
+
+
 interface DogCardGridProps {
   dogs: Dog[];
   favorites: string[];
   toggleFavorite: (dogId: string) => void;
+}
+
+interface Dog {
+  id: string;
+  img: string;
+  name: string;
+  breed: string;
+  age: number;
+  zip_code: string;
+}
+
+interface SearchData {
+  dogsData: Dog[];
+}
+
+interface DogCardGridProps {
+  dogs: Dog[];
+  favorites: string[];
+  toggleFavorite: (id: string) => void;
 }
 
 const DogCardGrid: React.FC<DogCardGridProps> = ({ dogs, favorites, toggleFavorite }) => {
@@ -84,5 +109,6 @@ const DogCardGrid: React.FC<DogCardGridProps> = ({ dogs, favorites, toggleFavori
     </>
   );
 };
+
 
 export default DogCardGrid;

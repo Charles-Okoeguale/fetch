@@ -75,3 +75,8 @@ export interface FavoriteDogsListProps {
   handleDeleteFavorite: (id: string) => void;
   isLoading: boolean;
 }
+
+export interface SearchData {
+  dogsData: any[]; // Consider defining a more specific type for dogs
+  totalPages: number;
+}

@@ -28,7 +28,12 @@ const useFetchBreeds = () => {
     fetchBreeds();
   }, []);
 
-  return { breeds, loading, error };
+  return {
+    data: breeds,
+    isLoading: loading,
+    error,
+  };
 };
+
 
 export default useFetchBreeds;

@@ -5,6 +5,11 @@ import DogCardGrid from '../components/dogCard';
 import MatchCard from '../components/matchCard';
 import SearchFilter from '../components/searchFilter';
 import ErrorSnackbar from '../components/snackbarError';
+import { useSearchDogs } from '../hooks/useSearchDogs';
+import useFetchBreeds from '../hooks/useFetchBreeds';
+import { useMutation, UseMutationResult } from 'react-query';
+import { generateMatch } from '../hooks/useGeneralMatch';
+
 
 interface SearchPageProps {
   user: User;
@@ -13,8 +18,6 @@ interface SearchPageProps {
 }
 
 const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch }) => {
-  const [dogs, setDogs] = useState<Dog[]>([]);
-  const [breeds, setBreeds] = useState<string[]>([]);
   const [filters, setFilters] = useState<SearchFilters>({
     breed: '',
     ageMin: 0,
@@ -22,97 +25,34 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
     zipCode: '',
   });
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [favorites, setFavorites] = useState<string[]>([]);
   const [match, setMatch] = useState<Dog | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { data: breeds = [], isLoading: breedsLoading, error: breedsError } = useFetchBreeds();
+  const { data: searchData, isLoading: searchLoading, refetch } = useSearchDogs({ filters, sortOrder, page });
+  const useGenerateMatch = (onSuccess: (match: any) => void): UseMutationResult<any, Error, string[]> => {
+    return useMutation({
+      mutationFn: generateMatch,
+      onSuccess,
+    });
+  };
 
   useEffect(() => {
-    fetchBreeds();
-    searchDogs();
     const storedFavorites = getFavoriteIds();
     setFavorites(storedFavorites);
-  }, []);
+    refetch();
+  }, [filters, sortOrder, page, refetch]);
 
   const getFavoriteIds = (): string[] => {
     const storedFavorites = localStorage.getItem('favorites');
     return storedFavorites ? JSON.parse(storedFavorites) : [];
   };
 
-  const fetchBreeds = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('https://frontend-take-home-service.fetch.com/dogs/breeds', {
-        credentials: 'include',
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setBreeds(data);
-      } else {
-        throw new Error('Failed to fetch breeds');
-      }
-    } catch (error) {
-      setError('Error fetching breeds. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const searchDogs = async () => {
-    try {
-        setLoading(true);
-        const queryParams = new URLSearchParams();
-
-        if (filters.breed) queryParams.append('breeds[]', filters.breed);
-        if (filters.ageMin) queryParams.append('ageMin', filters.ageMin.toString());
-        if (filters.ageMax) queryParams.append('ageMax', filters.ageMax.toString());
-        if (filters.zipCode) queryParams.append('zipCodes[]', filters.zipCode);
-        queryParams.append('sort', `breed:${sortOrder}`);
-        queryParams.append('size', '12');
-        queryParams.append('from', ((page - 1) * 12).toString());
-
-        const url = `https://frontend-take-home-service.fetch.com/dogs/search?${queryParams}`;
-
-        const response = await fetch(url, {
-        credentials: 'include',
-        });
-
-      if (response.ok) {
-        const data = await response.json();
-        const dogIds = data.resultIds;
-        const dogsResponse = await fetch('https://frontend-take-home-service.fetch.com/dogs', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dogIds),
-          credentials: 'include',
-        });
-
-        if (dogsResponse.ok) {
-          const dogsData = await dogsResponse.json()
-          setDogs(dogsData);
-          setTotalPages(Math.ceil(data.total / 20));
-        } else {
-          throw new Error('Failed to fetch dog details');
-        }
-      } else {
-        throw new Error('Failed to search dogs');
-      }
-    } catch (error) {
-      setError('Error searching dogs. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
-      const { name, value } = event.target as HTMLInputElement & { name?: string; value: string };
-  
-      setFilters(prev => ({ ...prev, [name]: value }));
+    const { name, value } = event.target as HTMLInputElement & { name?: string; value: string };
+    setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSortOrderChange = () => {
@@ -134,59 +74,14 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
     });
   };
 
-  const generateMatch = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('https://frontend-take-home-service.fetch.com/dogs/match', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(favorites),
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        const matchData = await response.json();
-        const matchId = matchData.match;
-        const dogsResponse = await fetch('https://frontend-take-home-service.fetch.com/dogs', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify([matchId]),
-            credentials: 'include',
-          });
-          if (dogsResponse.ok) {
-          const dogsData = await dogsResponse.json()
-          setMatch(dogsData[0]);
-        } else {
-          throw new Error('Failed to fetch dog details');
-        }
-        onSaveMatch({ id: Date.now().toString(), dog: matchData, timestamp: Date.now() });
-      } else {
-        throw new Error('Failed to generate match');
-      }
-    } catch (error) {
-      setError('Error generating match. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSaveSearch = () => {
     const savedSearch: SavedSearch = {
-        id: Date.now().toString(),
-        ...filters,
-        name: ''
+      id: Date.now().toString(),
+      ...filters,
+      name: ''
     };
     onSaveSearch(savedSearch);
   };
-
-  useEffect(() => {
-    searchDogs();
-    
-  }, [filters, sortOrder, page]);
 
   return (
     <Container>
@@ -202,26 +97,26 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
           handleSortOrderChange={handleSortOrderChange}
           handleSaveSearch={handleSaveSearch}
         />
-        {loading ? (
+        {searchLoading || breedsLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <CircularProgress />
           </Box>
         ) : (
           <DogCardGrid
-            dogs={dogs}
+            dogs={(searchData as { dogsData: any[] }).dogsData || []}
             favorites={favorites}
             toggleFavorite={toggleFavorite}
           />
         )}
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Pagination count={totalPages} page={page} onChange={handlePageChange} />
+          <Pagination count={(searchData as { totalPages: number })?.totalPages || 1} page={page} onChange={handlePageChange} />
         </Box>
         <Box sx={{ mt: 2 }}>
           <Button
-            onClick={generateMatch}
+            onClick={() => generateMatch(favorites)}
             sx={{ textTransform: 'none', fontFamily: 'Kanit' }}
             variant="contained"
-            disabled={favorites.length === 0 || loading}
+            disabled={favorites.length === 0}
           >
             Generate Match
           </Button>
@@ -237,5 +132,3 @@ const SearchPage: React.FC<SearchPageProps> = ({ user, onSaveSearch, onSaveMatch
 };
 
 export default SearchPage;
-
-
