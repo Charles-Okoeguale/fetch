@@ -69,9 +69,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
   };
 
   const loadMore = () => {
-    if (isLoading) return;
-  
     setIsLoading(true);
+    // Simulate API call
     fetch(`/api/favorites?page=${page}&limit=10`)
       .then((response) => response.json())
       .then((newDogs) => {
@@ -109,11 +108,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
           Favorite Dogs
         </Typography>
         <FavoriteDogsList
-        currentFavorites={favorites}
-        handleDeleteFavorite={handleDeleteFavorite}
-        isLoading={isLoading}
-        loadMore={loadMore}
-      />
+          favorites={favorites}
+          handleDeleteFavorite={handleDeleteFavorite}
+        />
       </Box>
 
       <SavedSearchDialog

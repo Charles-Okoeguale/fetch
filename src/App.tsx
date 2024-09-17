@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box, Container } from '@mui/material';
-// import SavedSearches from './components/SavedSearches';
 import { User, SavedSearch, Match } from './types';
 import UserProfile from './pages/userProfile';
 import LoginPage from './pages/loginPage';
 import SearchPage from './pages/searchPage';
 import Header from './components/header';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const theme = createTheme({
   palette: {
@@ -25,6 +25,7 @@ const App: React.FC = () => {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [savedMatches, setSavedMatches] = useState<Match[]>([]);
   const [currentPage, setCurrentPage] = useState<'search' | 'profile' | 'saved'>('search');
+  const queryClient = new QueryClient();
 
   useEffect(() => {
     // Load saved searches and matches from local storage
@@ -52,7 +53,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+    <QueryClientProvider client={queryClient}>
+       <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container>
         {user ? (
@@ -76,6 +78,7 @@ const App: React.FC = () => {
         )}
       </Container>
     </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
