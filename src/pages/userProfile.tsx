@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography } from '@mui/material';
+import { Container, Box, Typography, CircularProgress } from '@mui/material';
 import ProfileCard from '../components/profileCard';
 import SavedSearchList from '../components/savedSearchList';
 import FavoriteDogsList from '../components/faavoriteDogList';
@@ -74,7 +74,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdateUser, onError }
           Favorite Dogs
         </Typography>
         {isLoading ? (
-          <Typography>Loading favorites...</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress />
+          </Box>
         ) : (
           <FavoriteDogsList
             favorites={favorites}
